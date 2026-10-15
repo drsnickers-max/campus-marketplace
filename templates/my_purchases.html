@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}My purchases · Campus Marketplace{% endblock %}
+{% block content %}
+<h1>My purchases</h1>
+{% if items %}
+  <div class="rows">
+  {% for t in items %}
+    <div class="row-item col">
+      <div><strong>{{ t.product.title }}</strong> · {{ t.price|inr }} · bought {{ t.completed_at|date }} from
+        <a href="{{ url_for('profile.seller', seller_id=t.seller._id) }}">{{ t.seller.full_name }}</a></div>
+      {% if t.review %}
+        <p class="muted small">You rated this seller ★ {{ t.review.rating }}/5{% if t.review.comment %}: {{ t.review.comment }}{% endif %}</p>
+      {% else %}
+        <form class="inline" method="post" action="{{ url_for('reviews.create_review', transaction_id=t._id) }}">
+          {{ csrf() }}
+          <label for="rating-{{ loop.index }}">Rate seller</label>
+          <select id="rating-{{ loop.index }}" name="rating" required>
+            <option value="">Stars…</option>
+            {% for n in [5,4,3,2,1] %}<option value="{{ n }}">{{ '★' * n }} ({{ n }})</option>{% endfor %}
+          </select>
+          <label for="comment-{{ loop.index }}" class="sr-only">Review (optional)</label>
+          <input id="comment-{{ loop.index }}" name="comment" maxlength="500" placeholder="Optional review">
+          <button class="btn" type="submit" data-loading="Saving…">Submit review</button>
+        </form>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+{% else %}
+  <div class="empty"><p>No completed purchases yet. When a seller marks an item as sold to you, you can review them here.</p></div>
+{% endif %}
+{% endblock %}

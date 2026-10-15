@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, err %}
+{% set editing = product is not none %}
+{% block title %}{{ 'Edit listing' if editing else 'New listing' }} · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="form-card wide">
+  <h1>{{ 'Edit listing' if editing else 'Sell an item' }}</h1>
+  <form method="post" enctype="multipart/form-data" novalidate data-validate>
+    {{ csrf() }}
+    <label for="title">Title</label>
+    <input id="title" name="title" required minlength="3" maxlength="100" value="{{ form.get('title', '') }}">{{ err(errors, 'title') }}
+    <label for="description">Description</label>
+    <textarea id="description" name="description" required minlength="10" maxlength="2000" rows="5">{{ form.get('description', '') }}</textarea>{{ err(errors, 'description') }}
+    <div class="row">
+      <div><label for="price">Price (₹, whole rupees)</label>
+        <input id="price" name="price" type="number" required min="1" max="1000000" value="{{ form.get('price', '') }}">{{ err(errors, 'price') }}</div>
+      <div><label for="condition">Condition</label>
+        <select id="condition" name="condition" required>
+          <option value="">Choose…</option>
+          {% for c in conditions %}<option value="{{ c }}" {{ 'selected' if form.get('condition') == c }}>{{ c }}</option>{% endfor %}
+        </select>{{ err(errors, 'condition') }}</div>
+    </div>
+    <label for="category">Category</label>
+    <select id="category" name="category" required>
+      <option value="">Choose…</option>
+      {% for c in categories %}<option value="{{ c }}" {{ 'selected' if form.get('category') == c }}>{{ c }}</option>{% endfor %}
+    </select>{{ err(errors, 'category') }}
+    <label for="pickup_location">Campus pickup location (optional)</label>
+    <input id="pickup_location" name="pickup_location" maxlength="100" placeholder="e.g. Library main gate" value="{{ form.get('pickup_location', '') }}">{{ err(errors, 'pickup_location') }}
+
+    {% if editing and product.images %}
+      <fieldset><legend>Current images (tick to remove)</legend>
+        <div class="thumbs">
+        {% for img in product.images %}
+          <label class="thumb"><img src="{{ img.url }}" alt="Image {{ loop.index }}"><span><input type="checkbox" name="remove_images" value="{{ loop.index0 }}"> Remove</span></label>
+        {% endfor %}</div>
+      </fieldset>
+    {% endif %}
+    <label for="images">{{ 'Add more images' if editing else 'Images (1 to 5, JPG/PNG/WEBP/GIF, max 5 MB each)' }}</label>
+    <input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple {{ '' if editing else 'required' }} data-preview="#preview">
+    <div id="preview" class="thumbs"></div>{{ err(errors, 'images') }}
+    <button class="btn block" type="submit" data-loading="Saving…">{{ 'Save changes' if editing else 'Publish listing' }}</button>
+  </form>
+</div>
+{% endblock %}

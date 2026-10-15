@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import rating, avatar %}
+{% block title %}My profile · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="form-card">
+  <div class="profile-head">{{ avatar(g.user, 'lg') }}<div><h1>{{ g.user.full_name }}</h1><p class="muted">Year {{ g.user.academic_year }} · {{ rating(g.user.avg_rating, g.user.review_count) }}</p></div></div>
+  <ul class="facts">
+    <li><strong>Email:</strong> {{ g.user.email }}</li>
+    <li><strong>Registration no.:</strong> {{ g.user.registration_number }}</li>
+    <li><strong>Phone:</strong> {{ g.user.phone }}</li>
+    <li><strong>Member since:</strong> {{ g.user.created_at|date }}</li>
+  </ul>
+  <p class="hint">Only you can see your email, registration number and phone.</p>
+  <a class="btn" href="{{ url_for('profile.edit') }}">Edit profile</a>
+  <a class="btn alt" href="{{ url_for('profile.seller', seller_id=g.user._id) }}">View public profile</a>
+</div>
+{% endblock %}

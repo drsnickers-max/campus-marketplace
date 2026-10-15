@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, rating, avatar %}
+{% block title %}{{ p.title }} · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="detail">
+  <section class="gallery">
+    {% if p.images %}{% for img in p.images %}<img src="{{ img.url }}" alt="{{ p.title }}, photo {{ loop.index }}">{% endfor %}
+    {% else %}<div class="placeholder big" aria-hidden="true">📦</div>{% endif %}
+  </section>
+  <section class="info">
+    {% if p.status == 'SOLD' %}<span class="badge sold">SOLD</span>{% else %}<span class="badge ok">AVAILABLE</span>{% endif %}
+    <h1>{{ p.title }}</h1>
+    <p class="price big">{{ p.price|inr }}</p>
+    <ul class="facts">
+      <li><strong>Category:</strong> {{ p.category }}</li>
+      <li><strong>Condition:</strong> {{ p.condition }}</li>
+      <li><strong>Listed:</strong> {{ p.created_at|date }}</li>
+      {% if p.pickup_location %}<li><strong>Pickup:</strong> {{ p.pickup_location }}</li>{% endif %}
+    </ul>
+    <h2>Description</h2>
+    <p class="desc">{{ p.description }}</p>
+
+    <div class="box">
+      <h2>Seller</h2>
+      <a class="seller" href="{{ url_for('profile.seller', seller_id=p.seller._id) }}">{{ avatar(p.seller) }} {{ p.seller.full_name }}</a>
+      <p class="muted small">Year {{ p.seller.academic_year }} · {{ rating(p.seller.avg_rating, p.seller.review_count) }}</p>
+    </div>
+
+    <div class="box">
+      <h2>Contact seller</h2>
+      {% if is_owner %}
+        <p class="muted">This is your listing.</p>
+        {% if p.status == 'AVAILABLE' %}
+          <a class="btn" href="{{ url_for('products.edit', product_id=p._id) }}">Edit</a>
+          <a class="btn alt" href="{{ url_for('products.mark_sold', product_id=p._id) }}">Mark as sold</a>
+        {% endif %}
+      {% elif p.status == 'SOLD' %}
+        <p class="muted">This item has been sold.</p>
+      {% elif not g.user %}
+        <p>Log in to contact the seller.</p>
+        <a class="btn" href="{{ url_for('auth.login', next=request.path) }}">Log in</a>
+      {% elif inquiry %}
+        <p class="flash success">You contacted this seller on {{ inquiry.created_at|date }}.</p>
+        <p class="muted small">Your message: {{ inquiry.message }}</p>
+        {% if inquiry.reply %}<p><strong>Seller replied:</strong> {{ inquiry.reply }}</p>{% endif %}
+        <p class="muted small">See all replies in <a href="{{ url_for('inquiries.my_inquiries') }}">My inquiries</a>.</p>
+      {% else %}
+        <form method="post" action="{{ url_for('inquiries.inquire', product_id=p._id) }}">
+          {{ csrf() }}
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="3" required minlength="5" maxlength="500" placeholder="Hi! Is this still available? I can meet at..."></textarea>
+          <p class="hint">The seller will see your name, email and phone number so you can arrange a meetup. No online payments: pay in person.</p>
+          <button class="btn" type="submit" data-loading="Sending…">Contact seller</button>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

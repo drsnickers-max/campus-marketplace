@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import card %}
+{% block content %}
+<div class="layout">
+  <aside class="filters">
+    <form method="get" action="{{ url_for('main.index') }}">
+      <h2>Filters</h2>
+      <label for="q">Search</label>
+      <input id="q" name="q" type="search" maxlength="100" value="{{ filters.q }}">
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="">All categories</option>
+        {% for c in categories %}<option value="{{ c }}" {{ 'selected' if filters.category == c }}>{{ c }}</option>{% endfor %}
+      </select>
+      <label for="condition">Condition</label>
+      <select id="condition" name="condition">
+        <option value="">Any condition</option>
+        {% for c in conditions %}<option value="{{ c }}" {{ 'selected' if filters.condition == c }}>{{ c }}</option>{% endfor %}
+      </select>
+      <div class="row">
+        <div><label for="min_price">Min ₹</label><input id="min_price" name="min_price" type="number" min="0" value="{{ filters.min_price if filters.min_price is not none }}"></div>
+        <div><label for="max_price">Max ₹</label><input id="max_price" name="max_price" type="number" min="0" value="{{ filters.max_price if filters.max_price is not none }}"></div>
+      </div>
+      <label for="sort">Sort by</label>
+      <select id="sort" name="sort">
+        {% for key, (label, _) in sort_options.items() %}<option value="{{ key }}" {{ 'selected' if filters.sort == key }}>{{ label }}</option>{% endfor %}
+      </select>
+      <button class="btn block" type="submit">Apply</button>
+      <a class="muted small" href="{{ url_for('main.index') }}">Clear all</a>
+    </form>
+  </aside>
+
+  <section>
+    <h1>{% if qargs %}Results{% else %}Latest listings{% endif %} <span class="muted small">({{ total }} item{{ '' if total == 1 else 's' }})</span></h1>
+    {% if products %}
+      <div class="grid">{% for p in products %}{{ card(p) }}{% endfor %}</div>
+      {% if pages > 1 %}
+      <nav class="pager" aria-label="Pagination">
+        {% if page > 1 %}<a href="{{ url_for('main.index', page=page-1, **qargs) }}">← Previous</a>{% endif %}
+        <span>Page {{ page }} of {{ pages }}</span>
+        {% if page < pages %}<a href="{{ url_for('main.index', page=page+1, **qargs) }}">Next →</a>{% endif %}
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="empty">
+        <p>{% if qargs %}No items match your filters.{% else %}No items listed yet. Be the first to sell something!{% endif %}</p>
+        {% if qargs %}<a class="btn" href="{{ url_for('main.index') }}">Clear filters</a>{% endif %}
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

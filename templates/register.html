@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, err %}
+{% block title %}Sign up · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h1>Create your account</h1>
+  {% if errors.get('form') %}<div class="flash error" role="alert">{{ errors['form'] }}</div>{% endif %}
+  <form method="post" novalidate data-validate>
+    {{ csrf() }}
+    <label for="full_name">Full name</label>
+    <input id="full_name" name="full_name" required minlength="2" maxlength="80" autocomplete="name" value="{{ form.get('full_name', '') }}">{{ err(errors, 'full_name') }}
+    <label for="email">University email</label>
+    <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" value="{{ form.get('email', '') }}">{{ err(errors, 'email') }}
+    <label for="registration_number">Registration number</label>
+    <input id="registration_number" name="registration_number" required pattern="[A-Za-z0-9]{5,20}" value="{{ form.get('registration_number', '') }}"><p class="hint">Kept private. Never shown on your profile.</p>{{ err(errors, 'registration_number') }}
+    <label for="phone">Mobile number</label>
+    <input id="phone" name="phone" type="tel" required value="{{ form.get('phone', '') }}"><p class="hint">Kept private. Shared only when you contact someone or reply with sharing on.</p>{{ err(errors, 'phone') }}
+    <label for="academic_year">Academic year</label>
+    <select id="academic_year" name="academic_year" required>
+      <option value="">Choose…</option>
+      {% for y in range(1, 6) %}<option value="{{ y }}" {{ 'selected' if form.get('academic_year') == y|string }}>Year {{ y }}</option>{% endfor %}
+    </select>{{ err(errors, 'academic_year') }}
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password"><p class="hint">8+ characters with a letter and a number.</p>{{ err(errors, 'password') }}
+    <label for="confirm_password">Confirm password</label>
+    <input id="confirm_password" name="confirm_password" type="password" required autocomplete="new-password">{{ err(errors, 'confirm_password') }}
+    <button class="btn block" type="submit" data-loading="Creating account…">Sign up</button>
+  </form>
+  <p class="muted">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+</div>
+{% endblock %}

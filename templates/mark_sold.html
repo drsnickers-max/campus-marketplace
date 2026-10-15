@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, err %}
+{% block title %}Mark as sold · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h1>Mark as sold?</h1>
+  <p>You're about to mark <strong>{{ p.title }}</strong> ({{ p.price|inr }}) as <strong>SOLD</strong>. It will disappear from the marketplace. This can't be undone.</p>
+  <form method="post">
+    {{ csrf() }}
+    <label for="buyer_id">Who bought it?</label>
+    <select id="buyer_id" name="buyer_id">
+      <option value="">Someone outside the app (no review possible)</option>
+      {% for i in inquirers %}<option value="{{ i.buyer_id }}" {{ 'selected' if form.get('buyer_id') == i.buyer_id|string }}>{{ i.buyer_name }}</option>{% endfor %}
+    </select>
+    <p class="hint">Only students who contacted you are listed. The buyer you pick can leave you a review.</p>{{ err(errors, 'buyer_id') }}
+    <label for="price">Agreed sale price (₹)</label>
+    <input id="price" name="price" type="number" min="1" max="1000000" placeholder="{{ p.price }}" value="{{ form.get('price', '') }}"><p class="hint">Leave blank to use the listed price.</p>{{ err(errors, 'price') }}
+    <button class="btn danger" type="submit" data-loading="Saving…">Yes, mark as sold</button>
+    <a class="btn alt" href="{{ url_for('products.my_listings') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

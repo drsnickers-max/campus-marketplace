@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="empty"><h1>{{ code }} · {{ title }}</h1><p>{{ message }}</p><a class="btn" href="{{ url_for('main.index') }}">Back to marketplace</a></div>
+{% endblock %}

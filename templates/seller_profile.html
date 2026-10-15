@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import rating, avatar %}
+{% block title %}{{ seller.full_name }} · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="profile-head">{{ avatar(seller, 'lg') }}
+  <div><h1>{{ seller.full_name }}</h1>
+    <p class="muted">Year {{ seller.academic_year }} · member since {{ seller.created_at|date }}</p>
+    <p>{{ rating(seller.avg_rating, seller.review_count) }}</p></div></div>
+
+<h2>Reviews</h2>
+{% if reviews %}
+  <div class="rows">{% for r in reviews %}
+    <div class="row-item col"><div><span class="rating">{{ '★' * r.rating }}</span> <span class="muted small">by {{ r.buyer.full_name if r.buyer else 'a student' }} · {{ r.created_at|date }}</span></div>
+    {% if r.comment %}<p>{{ r.comment }}</p>{% endif %}</div>
+  {% endfor %}</div>
+{% else %}<div class="empty"><p>No reviews yet.</p></div>{% endif %}
+
+<h2>Items for sale</h2>
+{% if listings %}
+  <div class="rows">{% for p in listings %}
+    <div class="row-item"><div class="grow"><a href="{{ url_for('products.detail', product_id=p._id) }}"><strong>{{ p.title }}</strong></a>
+    <p class="muted small">{{ p.price|inr }} · {{ p.condition }}</p></div></div>
+  {% endfor %}</div>
+{% else %}<div class="empty"><p>No active listings.</p></div>{% endif %}
+{% endblock %}

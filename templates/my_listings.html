@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My listings · Campus Marketplace{% endblock %}
+{% block content %}
+<h1>My listings</h1>
+{% if items %}
+  <div class="rows">
+  {% for p in items %}
+    <div class="row-item">
+      {% if p.images %}<img class="mini" src="{{ p.images[0].url }}" alt="">{% else %}<div class="mini placeholder">📦</div>{% endif %}
+      <div class="grow"><a href="{{ url_for('products.detail', product_id=p._id) }}"><strong>{{ p.title }}</strong></a>
+        <p class="muted small">{{ p.price|inr }} · {{ p.condition }} · listed {{ p.created_at|date }}</p></div>
+      <a class="btn alt" href="{{ url_for('products.edit', product_id=p._id) }}">Edit</a>
+      <a class="btn" href="{{ url_for('products.mark_sold', product_id=p._id) }}">Mark sold</a>
+    </div>
+  {% endfor %}
+  </div>
+{% else %}
+  <div class="empty"><p>You have no active listings.</p><a class="btn" href="{{ url_for('products.new') }}">Create your first listing</a></div>
+{% endif %}
+{% endblock %}

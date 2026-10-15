@@ -1,0 +1,29 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro rating(avg, count) %}
+  {% if count %}<span class="rating" title="{{ avg }} out of 5">★ {{ '%.1f'|format(avg) }} <span class="muted">({{ count }})</span></span>
+  {% else %}<span class="muted">No reviews yet</span>{% endif %}
+{% endmacro %}
+
+{% macro err(errors, key) %}{% if errors.get(key) %}<p class="error" role="alert">{{ errors[key] }}</p>{% endif %}{% endmacro %}
+
+{% macro avatar(user, size='') %}
+  {% if user.profile_picture %}<img class="avatar {{ size }}" src="{{ user.profile_picture.url }}" alt="">
+  {% else %}<span class="avatar {{ size }}" aria-hidden="true">{{ user.full_name[:1]|upper }}</span>{% endif %}
+{% endmacro %}
+
+{% macro card(p) %}
+<article class="card">
+  <a class="card-link" href="{{ url_for('products.detail', product_id=p._id) }}">
+    {% if p.images %}<img src="{{ p.images[0].url }}" alt="{{ p.title }}" loading="lazy">
+    {% else %}<div class="placeholder" aria-hidden="true">📦</div>{% endif %}
+    <div class="card-body">
+      <h2>{{ p.title }}</h2>
+      <p class="price">{{ p.price|inr }}</p>
+      <p class="muted small">{{ p.condition }} · {{ p.category }}</p>
+    </div>
+  </a>
+  <div class="card-foot">{{ rating(p.seller.avg_rating, p.seller.review_count) }}
+    {% if p.status == 'SOLD' %}<span class="badge sold">SOLD</span>{% endif %}</div>
+</article>
+{% endmacro %}

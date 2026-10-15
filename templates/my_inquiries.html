@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}My inquiries · Campus Marketplace{% endblock %}
+{% block content %}
+<h1>My inquiries</h1>
+<h2>Received (people interested in your items)</h2>
+{% if received %}
+  <div class="rows">
+  {% for i in received %}
+    <div class="row-item col">
+      <div><strong>{{ i.buyer.full_name }}</strong> asked about <a href="{{ url_for('products.detail', product_id=i.product._id) }}">{{ i.product.title }}</a>
+        <span class="muted small">on {{ i.created_at|date }}</span></div>
+      <p>“{{ i.message }}”</p>
+      <p class="muted small">Contact: {{ i.buyer.email }} · {{ i.buyer.phone }}</p>
+      {% if i.reply %}<p class="muted small">Your reply: {{ i.reply }}{% if i.share_phone %} (phone shared){% endif %}</p>{% endif %}
+      <form class="inline" method="post" action="{{ url_for('inquiries.reply', inquiry_id=i._id) }}">
+        {{ csrf() }}
+        <label for="reply-{{ loop.index }}" class="sr-only">Reply</label>
+        <input id="reply-{{ loop.index }}" name="reply" required minlength="2" maxlength="500" placeholder="Reply, e.g. 'Yes! Library gate at 5pm?'">
+        <label class="check"><input type="checkbox" name="share_phone"> Share my phone</label>
+        <button class="btn" type="submit" data-loading="Sending…">{{ 'Update reply' if i.reply else 'Reply' }}</button>
+      </form>
+    </div>
+  {% endfor %}
+  </div>
+{% else %}<div class="empty"><p>No one has contacted you yet.</p></div>{% endif %}
+
+<h2>Sent (items you asked about)</h2>
+{% if sent %}
+  <div class="rows">
+  {% for i in sent %}
+    <div class="row-item col">
+      <div>You asked <strong>{{ i.seller.full_name }}</strong> about <a href="{{ url_for('products.detail', product_id=i.product._id) }}">{{ i.product.title }}</a>
+        {% if i.product.status == 'SOLD' %}<span class="badge sold">SOLD</span>{% endif %}</div>
+      <p class="muted small">“{{ i.message }}”</p>
+      {% if i.reply %}<p><strong>Reply:</strong> {{ i.reply }}{% if i.seller.phone %} · Phone: {{ i.seller.phone }}{% endif %}</p>
+      {% else %}<p class="muted small">Waiting for a reply.</p>{% endif %}
+    </div>
+  {% endfor %}
+  </div>
+{% else %}<div class="empty"><p>You haven't contacted any sellers yet.</p></div>{% endif %}
+{% endblock %}

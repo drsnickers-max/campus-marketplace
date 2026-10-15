@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, err %}
+{% block title %}Edit profile · Campus Marketplace{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h1>Edit profile</h1>
+  <form method="post" enctype="multipart/form-data" novalidate data-validate>
+    {{ csrf() }}
+    <label for="full_name">Full name</label>
+    <input id="full_name" name="full_name" required minlength="2" maxlength="80" value="{{ form.get('full_name', '') }}">{{ err(errors, 'full_name') }}
+    <label for="phone">Mobile number</label>
+    <input id="phone" name="phone" type="tel" required value="{{ form.get('phone', '') }}">{{ err(errors, 'phone') }}
+    <label for="academic_year">Academic year</label>
+    <select id="academic_year" name="academic_year" required>
+      {% for y in range(1, 6) %}<option value="{{ y }}" {{ 'selected' if form.get('academic_year')|string == y|string }}>Year {{ y }}</option>{% endfor %}
+    </select>{{ err(errors, 'academic_year') }}
+    <label for="profile_picture">Profile picture (optional)</label>
+    <input id="profile_picture" name="profile_picture" type="file" accept="image/png,image/jpeg,image/webp,image/gif">{{ err(errors, 'profile_picture') }}
+    <p class="hint">Email and registration number can't be changed.</p>
+    <button class="btn block" type="submit" data-loading="Saving…">Save changes</button>
+  </form>
+</div>
+{% endblock %}
